@@ -78,6 +78,7 @@ class MyApp extends StatelessWidget {
             },
             builder: (context, state) {
               return MaterialApp(
+                debugShowCheckedModeBanner: false,
                 home: Scaffold(
                   body: MaterialApp.router(
                     routerConfig: _appRouter.config(),

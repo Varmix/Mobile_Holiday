@@ -15,7 +15,7 @@ class HolidayApiProvider{
 
     Future<List<Holiday>> fetchHolidayByParticipant(bool isPublished) async {
       try {
-        Response response = await _dio.get('v1/Holiday/',
+        Response response = await _dio.get('v1/holidays/',
             queryParameters: {
               'isPublished': isPublished
         });
@@ -37,7 +37,7 @@ class HolidayApiProvider{
 
     Future<List<Holiday>> fetchHolidayPublished(bool isPublished) async {
       try {
-        Response response = await _dio.get('v1/Holiday/',
+        Response response = await _dio.get('v1/holidays/',
         queryParameters: {
           'isPublished' : isPublished
         });
@@ -60,7 +60,7 @@ class HolidayApiProvider{
 
     Future<List<Participant>> getAllParticipantNotYetInHoliday(String holidayId, bool isParticipated) async {
       try {
-        final response = await _dio.get('v1/holiday/$holidayId/participant',
+        final response = await _dio.get('v1/holidays/$holidayId/participants',
             queryParameters: {
               'isParticipated' : isParticipated
             });
@@ -82,7 +82,7 @@ class HolidayApiProvider{
 
     Future<Holiday> fetchHoliday(String holidayId) async {
       try {
-        Response response = await _dio.get('v1/Holiday/$holidayId');
+        Response response = await _dio.get('v1/holidays/$holidayId');
         Holiday holiday = Holiday.fromJson(response.data);
 
         logger.i("Récupération de la vacances $holidayId réalisée avec succès.");
@@ -102,7 +102,7 @@ class HolidayApiProvider{
       try {
         final holidayJson = holiday.toJson();
 
-        await _dio.put('v1/Holiday/publish', data: holidayJson);
+        await _dio.put('v1/holidays/publish', data: holidayJson);
         logger.i("Publication de la vacances ${holiday.id} réalisée avec succès.");
 
       } on DioException catch (e){
@@ -117,7 +117,7 @@ class HolidayApiProvider{
 
     Future<void> deleteHoliday(String holidayId) async {
       try {
-        await _dio.delete('v1/Holiday/$holidayId');
+        await _dio.delete('v1/holidays/$holidayId');
         logger.i("Suppression de la vacances $holidayId réalisée avec succès.");
 
       } on DioException catch (e){
@@ -135,7 +135,7 @@ class HolidayApiProvider{
         String filePath = '${(await getTemporaryDirectory()).path}/holiday.ics';
 
         await _dio.download(
-          'v1/Holiday/$holidayId/ics',
+          'v1/holidays/$holidayId/ics',
           filePath,
         );
 
@@ -154,29 +154,8 @@ class HolidayApiProvider{
 
   Future<void> createHoliday(HolidayData holidayData) async {
       try {
-        final formDataMap = {
-          'name': holidayData.name,
-          'description': holidayData.description,
-          'startDate': holidayData.startDate.toIso8601String(),
-          'endDate': holidayData.endDate.toIso8601String(),
-          'location.street': holidayData.locationData.street,
-          'location.number': holidayData.locationData.numberBox,
-          'location.locality': holidayData.locationData.locality,
-          'location.postalCode': holidayData.locationData.postalCode,
-          'location.country': holidayData.locationData.country,
-          'creatorId': holidayData.creatorId,
-        };
-        final formData = FormData.fromMap(formDataMap);
-
-        // Ajouter le fichier seulement s'il n'est pas null (comme en web)
-        if (holidayData.file != null) {
-          formData.files.add(MapEntry(
-              'uploadedHolidayPicture',
-              await MultipartFile.fromFile(holidayData.file!.path),
-          ));
-    }
-
-        await _dio.post('v1/holiday/', data : formData);
+        final formData = await buildHolidayFormData(holidayData);
+        await _dio.post('v1/holidays/', data : formData);
         logger.i("Création de la vacances effectuée avec succès.");
 
       } on DioException catch (e){
@@ -191,33 +170,9 @@ class HolidayApiProvider{
 
     Future<void> editHoliday(HolidayData holidayData) async {
       try {
-        final formDataMap = {
-          'name': holidayData.name,
-          'description': holidayData.description,
-          'startDate': holidayData.startDate.toIso8601String(),
-          'endDate': holidayData.endDate.toIso8601String(),
-          'location.id' : holidayData.locationData.locationId,
-          'location.street': holidayData.locationData.street,
-          'location.number': holidayData.locationData.numberBox,
-          'location.locality': holidayData.locationData.locality,
-          'location.postalCode': holidayData.locationData.postalCode,
-          'location.country': holidayData.locationData.country,
-          'creatorId': holidayData.creatorId,
-          'deleteImage' : holidayData.deleteImage,
-          'initialPath' : holidayData.initialPath!,
-          'isPublish' : holidayData.isPublish
-        };
-        final formData = FormData.fromMap(formDataMap);
 
-        // Ajouter le fichier seulement s'il n'est pas null (comme en web)
-        if (holidayData.file != null) {
-          formData.files.add(MapEntry(
-            'uploadedHolidayPicture',
-            await MultipartFile.fromFile(holidayData.file!.path),
-          ));
-        }
-
-        await _dio.put('v1/holiday/${holidayData.holidayId!}', data : formData);
+        final formData = await buildHolidayFormData(holidayData, isEdit: true);
+        await _dio.put('v1/holidays/${holidayData.holidayId!}', data : formData);
         logger.i("Mise à jour de la vacances ${holidayData.holidayId} effectuée avec succès.");
 
       } on DioException catch (e){
@@ -232,7 +187,7 @@ class HolidayApiProvider{
 
     Future<void> leaveHoliday(String holidayId) async {
       try {
-        await _dio.delete('v1/Holiday/$holidayId/leave');
+        await _dio.delete('v1/holidays/$holidayId/leave');
         logger.i("Vacances $holidayId quittée avec succès par un participant.");
 
       } on DioException catch (e){
@@ -243,5 +198,38 @@ class HolidayApiProvider{
         logger.e("Une erreur est survenue lorsqu'un utilisateur a essayé de quitté la vacances $holidayId.");
         throw ApiException("Une erreur s'est produite lors de la suppression de votre vacances.", stacktrace);
       }
+    }
+
+    Future<FormData> buildHolidayFormData(HolidayData holidayData, {bool isEdit = false}) async {
+      Map<String, dynamic> formDataMap = {
+        'name': holidayData.name,
+        'description': holidayData.description,
+        'startDate': holidayData.startDate.toIso8601String(),
+        'endDate': holidayData.endDate.toIso8601String(),
+        'location.street': holidayData.locationData.street,
+        'location.number': holidayData.locationData.numberBox,
+        'location.locality': holidayData.locationData.locality,
+        'location.postalCode': holidayData.locationData.postalCode,
+        'location.country': holidayData.locationData.country,
+        'creatorId': holidayData.creatorId,
+      };
+
+      if (isEdit) {
+        formDataMap.addAll({
+          'location.id' : holidayData.locationData.locationId,
+          'deleteImage' : holidayData.deleteImage,
+          'initialPath' : holidayData.initialPath!,
+          'isPublish' : holidayData.isPublish
+        });
+      }
+      final formData = FormData.fromMap(formDataMap);
+
+      if (holidayData.file != null) {
+        formData.files.add(MapEntry(
+          'uploadedHolidayPicture',
+          await MultipartFile.fromFile(holidayData.file!.path),
+        ));
+      }
+      return formData;
     }
 }

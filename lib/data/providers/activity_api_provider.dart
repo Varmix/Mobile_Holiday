@@ -49,29 +49,7 @@ class ActivityApiProvider{
 
   Future<void> createActivity(ActivityData activityData) async {
     try {
-      final formDataMap = {
-        'name': activityData.name,
-        'description': activityData.description,
-        'price' : activityData.price.toString().replaceAll('.', ','),
-        'startDate': activityData.startDate.toIso8601String(),
-        'endDate': activityData.endDate.toIso8601String(),
-        'location.street': activityData.locationData.street,
-        'location.number': activityData.locationData.numberBox,
-        'location.locality': activityData.locationData.locality,
-        'location.postalCode': activityData.locationData.postalCode,
-        'location.country': activityData.locationData.country,
-        'holidayId': activityData.holidayId,
-      };
-      final formData = FormData.fromMap(formDataMap);
-
-      // Ajouter le fichier seulement s'il n'est pas null (comme en web)
-      if (activityData.file != null) {
-        formData.files.add(MapEntry(
-            'UploadedActivityPicture',
-            await MultipartFile.fromFile(activityData.file!.path),
-        ));
-      }
-
+      final formData = await buildActivityFormData(activityData);
       await _dio.post('v1/activity/', data : formData);
       logger.i("Activité créée avec succès.");
 
@@ -87,31 +65,7 @@ class ActivityApiProvider{
 
   Future<void> updateActivity(ActivityData activityData) async {
     try {
-      final formDataMap = {
-        'name': activityData.name,
-        'description': activityData.description,
-        'price' : activityData.price.toString().replaceAll('.', ','),
-        'startDate': activityData.startDate.toIso8601String(),
-        'endDate': activityData.endDate.toIso8601String(),
-        'location.id' : activityData.locationData.locationId,
-        'location.street': activityData.locationData.street,
-        'location.number': activityData.locationData.numberBox,
-        'location.locality': activityData.locationData.locality,
-        'location.postalCode': activityData.locationData.postalCode,
-        'location.country': activityData.locationData.country,
-        'holidayId': activityData.holidayId,
-        'deleteImage' : activityData.deleteImage,
-        'initialPath' : activityData.initialPath
-      };
-      final formData = FormData.fromMap(formDataMap);
-
-      // Ajouter le fichier seulement s'il n'est pas null (comme en web)
-      if (activityData.file != null) {
-        formData.files.add(MapEntry(
-          'UploadedActivityPicture',
-          await MultipartFile.fromFile(activityData.file!.path),
-        ));
-      }
+      final formData = await buildActivityFormData(activityData, isEdit: true);
 
       await _dio.put('v1/activity/${activityData.activityId}', data : formData);
       logger.i("Activité ${activityData.activityId} mise à jour avec succès.");
@@ -177,6 +131,41 @@ class ActivityApiProvider{
       logger.e("Erreur lors de la création d'une participation à une activité.");
       throw ApiException("Une erreur s'est produite lors de la création d'une participation à l'activité.", stacktrace);
     }
+  }
+
+  Future<FormData> buildActivityFormData(ActivityData activityData, {bool isEdit = false}) async {
+    Map<String, dynamic> formDataMap = {
+      'name': activityData.name,
+      'description': activityData.description,
+      'price': activityData.price.toString().replaceAll('.', ','),
+      'startDate': activityData.startDate.toIso8601String(),
+      'endDate': activityData.endDate.toIso8601String(),
+      'location.street': activityData.locationData.street,
+      'location.number': activityData.locationData.numberBox,
+      'location.locality': activityData.locationData.locality,
+      'location.postalCode': activityData.locationData.postalCode,
+      'location.country': activityData.locationData.country,
+      'holidayId': activityData.holidayId,
+    };
+
+    if (isEdit) {
+      formDataMap.addAll({
+        'location.id': activityData.locationData.locationId,
+        'deleteImage': activityData.deleteImage,
+        'initialPath': activityData.initialPath
+      });
+    }
+
+    final formData = FormData.fromMap(formDataMap);
+
+    if (activityData.file != null) {
+      formData.files.add(MapEntry(
+        'UploadedActivityPicture',
+        await MultipartFile.fromFile(activityData.file!.path),
+      ));
+    }
+
+    return formData;
   }
 
 }

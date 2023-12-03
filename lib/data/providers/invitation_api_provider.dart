@@ -18,7 +18,7 @@ class InvitationsApiProvider{
       //Conversion en JSON
       List<Map<String, dynamic>> invitationsJsonList = Invitation.invitationsToJsonList(invitations);
 
-      await _dio.post('v1/invitation', data: invitationsJsonList);
+      await _dio.post('v1/invitations', data: invitationsJsonList);
       logger.i("Création d'une invitation effectuée avec succès.");
 
     } on DioException catch (e){
@@ -34,7 +34,7 @@ class InvitationsApiProvider{
 
   Future<List<Invitation>> fetchAllInvitationsByParticipant() async {
     try {
-      final response = await _dio.get('v1/invitation');
+      final response = await _dio.get('v1/invitations');
 
       List<Invitation> invitations = (response.data as List<dynamic>).map((index) => Invitation.fromJson(index as Map<String, dynamic>)).toList();
 
@@ -54,7 +54,7 @@ class InvitationsApiProvider{
   Future<void> acceptInvitation(String invitationId) async {
     try {
 
-      await _dio.put('v1/invitation/$invitationId');
+      await _dio.put('v1/invitations/$invitationId');
       logger.i("Acceptation de l'invitation $invitationId réalisée avec succès.");
 
     } on DioException catch (e){
@@ -69,7 +69,7 @@ class InvitationsApiProvider{
 
   Future<void> refuseInvitation(String invitationId) async {
     try {
-      await _dio.delete('v1/invitation/$invitationId');
+      await _dio.delete('v1/invitations/$invitationId');
       logger.i("Refus de l'invitation $invitationId réalisée avec succès.");
 
     } on DioException catch (e){

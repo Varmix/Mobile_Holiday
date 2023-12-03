@@ -10,7 +10,7 @@ class WeatherApiProvider{
 
   Future<Weather> fetchWeatherByHoliday(String holidayId) async {
     try {
-      Response response = await _dio.get('v1/Weather/$holidayId');
+      Response response = await _dio.get('v1/weather/$holidayId');
 
       Weather weather = Weather.fromJson(response.data);
 
