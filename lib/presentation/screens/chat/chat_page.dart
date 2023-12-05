@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:holiday_mobile/data/models/message/message.dart';
 import 'package:holiday_mobile/data/providers/signalr/connection_hub.dart';
+import 'package:holiday_mobile/logic/blocs/holiday_bloc/holiday_bloc.dart';
 import 'package:holiday_mobile/presentation/widgets/chat/message_chat.dart';
 import 'package:auto_route/annotations.dart';
 import 'package:holiday_mobile/presentation/widgets/common/custom_message.dart';
@@ -31,12 +32,18 @@ class _ChatWidgetState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.holidayName),
-          backgroundColor: const Color(0xFF1E3A8A),
-        ),
-        body: _buildListMessage());
+    return WillPopScope(
+      onWillPop: () async {
+        context.read<HolidayBloc>().add(GetHoliday(holidayId: widget.holidayId));
+        return true;
+      },
+      child: Scaffold(
+          appBar: AppBar(
+            title: Text(widget.holidayName),
+            backgroundColor: const Color(0xFF1E3A8A),
+          ),
+          body: _buildListMessage()),
+    );
   }
 
   Widget _buildListMessage() {

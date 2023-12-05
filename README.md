@@ -1,16 +1,17 @@
-# holiday_mobile
+# UE25-Architectures Logicielles - Mobile
 
-Projet mobile dans le cadre du cours d'architectures logicielles
+## En mode développement
+### Générer les routes avec le package AutoRoute
+- Exécuter la commande ```dart run build_runner build```
 
-## Getting Started
+### Générer les fichiers pour les mappers JSON
+- Exécuter la commande ```dart run build_runner build```
 
-This project is a starting point for a Flutter application.
+### Installer les dépendances
+- Exécuter la commande ```flutter pub get```
 
-A few resources to get you started if this is your first Flutter project:
+## En mode production
+Pour passer en mode production, il est nécessaire d'aller dans le fichier main.dart. À la ligne 32, changez la valeur du paramètre isProduction dans l'objet Configuration. Réglez-le sur true pour activer les URLs destinées à la production ou sur false si vous souhaitez conserver les URLs de développement.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Auteurs
+Un projet réalisé par De Vlegelaer Edwin (```q210054```) et Mahy François (```q210208```)

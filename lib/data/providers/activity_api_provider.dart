@@ -14,7 +14,7 @@ class ActivityApiProvider{
 
   Future<Activity> fetchActivityById(String activityId) async {
     try {
-      Response response = await _dio.get('v1/Activity/$activityId');
+      Response response = await _dio.get('v1/activities/$activityId');
 
       // conversion list
       final activity = Activity.fromJson(response.data);
@@ -34,7 +34,7 @@ class ActivityApiProvider{
 
   Future<void> deleteActivity(String activityId) async {
     try {
-      await _dio.delete('v1/Activity/$activityId');
+      await _dio.delete('v1/activities/$activityId');
       logger.i("Activité $activityId supprimée avec succès.");
 
     } on DioException catch (e){
@@ -50,12 +50,12 @@ class ActivityApiProvider{
   Future<void> createActivity(ActivityData activityData) async {
     try {
       final formData = await buildActivityFormData(activityData);
-      await _dio.post('v1/activity/', data : formData);
+      await _dio.post('v1/activities/', data : formData);
       logger.i("Activité créée avec succès.");
 
     } on DioException catch (e){
       logger.i("Erreur lors de la création de l'activité.");
-      throw ApiException(e.response?.data, e);
+      throw ApiException(e.response?.data ?? "Erreur lors de la création de l'activité.", e);
 
     } catch (e, stacktrace) {
       logger.i("Erreur lors de la création de l'activité.");
@@ -67,12 +67,12 @@ class ActivityApiProvider{
     try {
       final formData = await buildActivityFormData(activityData, isEdit: true);
 
-      await _dio.put('v1/activity/${activityData.activityId}', data : formData);
+      await _dio.put('v1/activities/${activityData.activityId}', data : formData);
       logger.i("Activité ${activityData.activityId} mise à jour avec succès.");
 
     } on DioException catch (e){
       logger.i("Erreur lors de la mise à jour de l'activité ${activityData.activityId}.");
-      throw ApiException(e.response?.data, e);
+      throw ApiException(e.response?.data ?? "Erreur lors de la mise à jour d'une activité", e);
 
     } catch (e, stacktrace) {
       logger.i("Erreur lors de la mise à jour de l'activité ${activityData.activityId}.");
@@ -82,7 +82,7 @@ class ActivityApiProvider{
 
   Future<void> deleteParticipate(String activityId, String participantId) async {
     try {
-      await _dio.delete('v1/activity/$activityId/participant/$participantId');
+      await _dio.delete('v1/activities/$activityId/participants/$participantId');
       logger.i("Suppression de la participation du participant $participantId à l'activité $activityId réalisée avec succès.");
 
     } on DioException catch (e){
@@ -97,7 +97,7 @@ class ActivityApiProvider{
 
   Future<List<Participant>> getParticipantsByActivity(String activityId, bool isParticipated) async {
     try {
-      final response = await _dio.get('v1/activity/$activityId/participant',
+      final response = await _dio.get('v1/activities/$activityId/participants',
           queryParameters: {
             'isParticipated' : isParticipated
           });
@@ -120,7 +120,7 @@ class ActivityApiProvider{
   Future<void> createParticipate(String activityId, String participantId) async {
     try {
 
-      await _dio.post('v1/activity/$activityId/participant/$participantId');
+      await _dio.post('v1/activities/$activityId/participants/$participantId');
       logger.i("Création d'une participation à une activité réalisée avec succès.");
 
     } on DioException catch (e){
