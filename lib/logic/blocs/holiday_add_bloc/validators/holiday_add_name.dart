@@ -20,7 +20,7 @@ class HolidayNameInput extends FormzInput<String, HolidayNameInputError> {
   const HolidayNameInput.dirty({String value = ''}) : super.dirty(value);
 
   static final holidayNameRegExp = RegExp(
-    r"^[A-Za-z\dÀ-ÿ #$%*+@\[\]'-,]{3,50}$",
+    r"^[A-Za-z\dÀ-ÿ #$%*+@\[\]'\-,]{3,50}$",
   );
 
   @override

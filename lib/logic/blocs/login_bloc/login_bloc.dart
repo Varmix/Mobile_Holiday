@@ -69,7 +69,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   void _onGoogleSubmit(
       GoogleLoginSubmit event, Emitter<LoginState> emit) async {
-    emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
+    emit(state.copyWith(status: FormzSubmissionStatus.inProgress, isSubmitted: true));
     try {
       GoogleSignIn googleSignIn = GoogleSignIn(
         scopes: <String>[
@@ -88,7 +88,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       GoogleSignInAccount? account = await googleSignIn.signIn();
 
       // Si l'utilisateur nie la pop-up (clique à côte pour l'enlever)
-      if (account == null) return;
+      if (account == null) {
+        emit(state.copyWith(isSubmitted: false));
+        return;
+      }
 
       // Récupérer les informations de l'authentfiication
       final GoogleSignInAuthentication googleAuth =
@@ -100,16 +103,16 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         emit(state.copyWith(
             status: FormzSubmissionStatus.failure,
             errorMessage:
-                "Il a été impossible de vous authentifier avec Google. Merci de réessayer plus tard."));
+                "Il a été impossible de vous authentifier avec Google. Merci de réessayer plus tard.", isSubmitted: false));
         return;
       }
 
       // Call API
       await authRepository.logInGoogle(tokenId);
-      emit(state.copyWith(status: FormzSubmissionStatus.success));
+      emit(state.copyWith(status: FormzSubmissionStatus.success, isSubmitted: false));
     } catch (e) {
       emit(state.copyWith(
-          status: FormzSubmissionStatus.failure, errorMessage: e.toString()));
+          status: FormzSubmissionStatus.failure, errorMessage: e.toString(), isSubmitted: false));
     }
   }
 }

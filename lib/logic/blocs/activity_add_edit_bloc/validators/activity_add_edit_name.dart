@@ -20,7 +20,7 @@ class ActivityNameInput extends FormzInput<String, ActivityNameInputError> {
   const ActivityNameInput.dirty({String value = ''}) : super.dirty(value);
 
   static final activityNameRegExp = RegExp(
-    r"^[A-Za-z\dÀ-ÿ #$%*+@\[\]'-,]{3,50}$",
+    r"^[A-Za-z\dÀ-ÿ #$%*+@\[\]'\-,]{3,50}$",
   );
 
   @override

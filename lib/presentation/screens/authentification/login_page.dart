@@ -164,13 +164,15 @@ class GoogleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
+      buildWhen: (previous, current) => previous.isSubmitted != current.isSubmitted,
       builder: (context, state) {
         return Container(
             margin: const EdgeInsets.only(top: 20),
-            child: SignInButton(
+            child: state.isSubmitted ? const CircularProgressIndicator() : SignInButton(
                 Buttons.googleDark,
                 text: 'Se connecter avec Google',
-                onPressed: () => context.read<LoginBloc>().add(GoogleLoginSubmit())));
+                onPressed: () => context.read<LoginBloc>().add(GoogleLoginSubmit()))
+        );
       },
     );
   }
