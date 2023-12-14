@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:holiday_mobile/data/models/weather_hour/weather_hour.dart';
+import 'package:holiday_mobile/main.dart';
 import 'package:intl/intl.dart';
+import 'package:timezone/timezone.dart';
 
 class WeatherHourItem extends StatelessWidget {
   final WeatherHour weatherHour;
@@ -36,7 +38,7 @@ class WeatherHourItem extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(top: 5),
               child: Text(
-                dateFormat.format(DateTime.parse(weatherHour.dateAndTime)),
+                dateFormat.format(TZDateTime.parse(globalLocation!, weatherHour.dateAndTime)),
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,

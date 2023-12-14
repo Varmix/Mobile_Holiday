@@ -3,10 +3,12 @@ import 'package:auto_route/annotations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:holiday_mobile/data/models/weather/weather.dart';
 import 'package:holiday_mobile/logic/blocs/weather_bloc/weather_bloc.dart';
+import 'package:holiday_mobile/main.dart';
 import 'package:holiday_mobile/presentation/widgets/common/custom_message.dart';
 import 'package:holiday_mobile/presentation/widgets/common/progress_loading_widget.dart';
 import 'package:holiday_mobile/presentation/widgets/weather/weather_hour_tem.dart';
 import 'package:intl/intl.dart';
+import 'package:timezone/timezone.dart';
 
 @RoutePage()
 class WeatherScreen extends StatefulWidget {
@@ -95,34 +97,38 @@ class _WeatherScreenState extends State<WeatherScreen> {
                         Container(
                           margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
                           child:  Text(
-                            weather.weatherDays[selectedIndex].condition.description,
+                            "Météo pour le ${dateFormatDay.format(TZDateTime.parse(globalLocation!,  weather.weatherDays[selectedIndex].date))}",
                             style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF1E3A8A),
                             ),
                           ),
                         ),
-                        Text(
-                          "${weather.weatherDays[selectedIndex].weatherByHour[0].temp} °C",
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E3A8A),
+                        Container(
+                          margin: const EdgeInsets.only(top: 5),
+                          child: Text(
+                            "Dernière mise à jour effectuée à ${DateFormat('HH:mm').format(TZDateTime.parse(globalLocation!, weather.currentDay?.date ?? weather.weatherDays[selectedIndex].date))}",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontStyle: FontStyle.italic,
+                            ),
                           ),
                         ),
 
                         Image.network("https:${weather.weatherDays[selectedIndex].condition.iconPath}"),
 
+
                         Container(
                           margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-                          child: Text(
-                            "Le ${dateFormatFull.format(DateTime.parse(weather.weatherDays[selectedIndex].date))}",
+                          child:  Text(
+                            weather.weatherDays[selectedIndex].condition.description,
                             style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E3A8A),
                             ),
-                          ),
+                            ),
                         ),
                         Container(
                           margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -201,7 +207,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                     cells: [
                                       DataCell(
                                           Text(
-                                              dateFormatDay.format(DateTime.parse(weatherDay.date))
+                                              dateFormatDay.format(TZDateTime.parse(globalLocation!, weatherDay.date))
                                           )
                                       ),
                                       DataCell(Row(
