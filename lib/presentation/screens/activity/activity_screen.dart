@@ -92,6 +92,11 @@ class _ActivityState extends State<ActivityScreen> {
             ),
             BlocListener<MapsBloc, MapsState>(
               listener: (context, state) {
+                if (state.status == MapsStatus.error) {
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentMaterialBanner()
+                    ..showMaterialBanner(CustomMessage(message: state.errorMessage!).build(context));
+                }
                 if (state.status == MapsStatus.loaded) {
                   context.router.push(MapRoute(destinationLatitude: _mapsBloc.state.latitude, destinationLongitude: _mapsBloc.state.longitude, activityName: _activity.name));
                 }

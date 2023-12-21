@@ -1,6 +1,6 @@
 part of 'maps_bloc.dart';
 
-enum MapsStatus {initial, loading, loaded, error}
+enum MapsStatus {initial, loading, loaded, error, inProgress}
 
 class MapsState extends Equatable {
   final MapsStatus status;
