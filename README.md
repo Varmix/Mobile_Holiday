@@ -14,4 +14,4 @@
 Pour passer en mode production, il est nécessaire d'aller dans le fichier main.dart. À la ligne 32, changez la valeur du paramètre isProduction dans l'objet Configuration. Réglez-le sur true pour activer les URLs destinées à la production ou sur false si vous souhaitez conserver les URLs de développement.
 
 ## Auteurs
-Un projet réalisé par De Vlegelaer Edwin (```q210054```) et Mahy François (```q210208```)
+Un projet réalisé par Varmix (```q210054```) et ZKYZ28 (```q210208```)
